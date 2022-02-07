@@ -1,23 +1,185 @@
-import logo from './logo.svg';
-import './App.css';
+import { chooseType } from './helpers/chooseType';
 
 function App() {
+
+  const schema = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "attendees": {
+        "type": "object",
+        "$id": "#attendees",
+        "properties": {
+          "userId": {
+            "type": "integer"
+          },
+          "access": {
+            "enum": [
+              "view",
+              "modify",
+              "sign",
+              "execute"
+            ]
+          },
+          "formAccess": {
+            "enum": [
+              "view",
+              "execute",
+              "execute_view"
+            ]
+          }
+        },
+        "required": [
+          "userId",
+          "access"
+        ]
+      }
+    },
+    "type": "object",
+    "properties": {
+      "id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      "title": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "startDate": {
+        "type": "integer"
+      },
+      "endDate": {
+        "type": "integer"
+      },
+      "attendees": {
+        "type": "array",
+        "items": {
+          "$ref": "#attendees"
+        },
+        "default": []
+      },
+      "parentId": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      "locationId": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      "process": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "regex",
+            "pattern": "https:\\/\\/[a-z]+\\.corezoid\\.com\\/api\\/1\\/json\\/public\\/[0-9]+\\/[0-9a-zA-Z]+"
+          }
+        ]
+      },
+      "readOnly": {
+        "type": "boolean"
+      },
+      "priorProbability": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          }
+        ]
+      },
+      "channelId": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      "externalId": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "tags": {
+        "type": "array"
+      },
+      "form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "viewModel": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "formValue": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "id",
+      "title",
+      "description",
+      "startDate",
+      "endDate",
+      "attendees"
+    ]
+  };
+
+  let json = JSON.stringify(schema);  
+  const schemaAsObject = JSON.parse(json);
+  let resultData = {}
+
+  for (let key in schemaAsObject.properties) {
+    let property = schemaAsObject.properties[key]
+    resultData[key]  = chooseType(property.type, property.anyOf, property, schemaAsObject)
+  }
+
+  console.log("resultData", resultData);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      Результат отображается в консоле
     </div>
   );
 }
